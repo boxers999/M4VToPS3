@@ -1,6 +1,14 @@
 #!/usr/bin/python
 import os, re, subprocess, shlex, MySQLdb
-db = MySQLdb.connect(host="192.168.0.5", user="root", passwd="hatter",db="zendcastdev")
+from datetime import datetime
+db = MySQLdb.connect(host="localhost", user="root", passwd="hatter",db="m4vToPS3")
+#cursor = db.cursor()
+#cursor.execute('SELECT * FROM users')
+#result = cursor.fetchall()
+#print result;
+
+t = datetime.now()
+now =  t.strftime("%Y-%m-%d")
 
 fileLocation = '/usr/local/zend/apache2/htdocs/m4vToPS3/'
 m4vReg = re.compile("m4v")
@@ -30,6 +38,10 @@ if os.path.isdir(fileLocation):
             #output,error = subprocess.Popen(comandArgs,stdout = subprocess.PIPE).communicate()
             if output == 0:
                 print origTitle + ' has been converted.'
+                sql = 'INSERT INTO tbl_converted (titleName, dateConverted) VALUES ("'+origTitle+'","'+now+'")'
+                print sql
+                cursor = db.cursor()
+                cursor.execute(sql)
             else:
                 print origTitle + ' FAILED to convert !'
     else:
