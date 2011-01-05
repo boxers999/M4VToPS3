@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import os, re, subprocess, shlex, MySQLdb, sys
 from datetime import datetime
-#from pprint import pprint
+from pipes import quote
 
 class dbConnect:
     def __init__(self):
@@ -37,7 +37,8 @@ class m4vToPS3(dbConnect):
             for self.title in self.mp4Convert:
                 self.origTitle = self.title
                 self.title = self.title.replace('.m4v','')
-                self.title = self.title.replace(' ', '\ ')
+                self.title = '"'+self.title+'"'
+                #self.title = self.title.replace(' ', '\ ')
                 self.title = self.fileLocation+self.title      
                 self.convertCli = 'ffmpeg -i '+self.title+'.m4v -acodec copy  -vcodec copy '+self.title+'.mp4'
                 comandArgs = shlex.split(self.convertCli)
@@ -80,11 +81,19 @@ class m4vToPS3(dbConnect):
 
            
 convert = m4vToPS3()
-option = raw_input("c) To Convert \nl) To List Converted\n")
 
-if option == 'c':
-    convert.getFilesToConvert()
-    convert.doConvert()
-elif option == 'l':
-    convert.listConverted()
+if len(sys.argv) > 1 < 3:
+    if sys.argv[1] == "-c":
+        convert.getFilesToConvert()
+        convert.doConvert()
+    elif sys.argv[1] == "-l":
+        convert.listConverted()
+else :
+    option = raw_input("c) To Convert \nl) To List Converted\n")
+
+    if option == 'c':
+        convert.getFilesToConvert()
+        convert.doConvert()
+    elif option == 'l':
+        convert.listConverted()
 
