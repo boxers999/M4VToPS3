@@ -45,52 +45,56 @@ class m4vToPS3(dbConnect):
         self.mp4Convert.append(film)
 
     def doConvert(self):
-        if len(self.mp4Convert) > 0:
-            for self.title in self.mp4Convert:
-                self.origTitle = self.title
-                self.title = self.title.replace('.m4v','')
-                self.title = '"'+self.title+'"'
-                #self.title = self.title.replace(' ', '\ ')
-                self.title = self.fileLocation+self.title      
-                self.convertCli = 'ffmpeg -i '+self.title+'.m4v -acodec copy  -vcodec copy '+self.title+'.mp4'
-                comandArgs = shlex.split(self.convertCli)
-                print 'Converting ' + self.origTitle + ' to .mp4'
-                output = subprocess.call(comandArgs)
-                #output,error = subprocess.Popen(comandArgs,stdout = subprocess.PIPE).communicate()
-                if output == 0:
-                    print self.origTitle + ' has been converted.'
-                    self.sql = 'INSERT INTO tbl_converted (titleName, dateConverted) VALUES ("'+self.origTitle+'","'+self.now+'")'
-                    self.cursor = self.db.cursor()
-                    self.cursor.execute(self.sql)
-                else:
-                    print self.origTitle + ' FAILED to convert !'
-        else:
-            print "There are no films that need converting."
+        try:
+            if len(self.mp4Convert) > 0:
+                for self.title in self.mp4Convert:
+                    self.origTitle = self.title
+                    self.title = self.title.replace('.m4v','')
+                    self.title = '"'+self.title+'"'
+                    #self.title = self.title.replace(' ', '\ ')
+                    self.title = self.fileLocation+self.title      
+                    self.convertCli = 'ffmpeg -i '+self.title+'.m4v -acodec copy  -vcodec copy '+self.title+'.mp4'
+                    comandArgs = shlex.split(self.convertCli)
+                    print 'Converting ' + self.origTitle + ' to .mp4'
+                    output = subprocess.call(comandArgs)
+                    if output == 0:
+                        print self.origTitle + ' has been converted.'
+                        self.sql = 'INSERT INTO tbl_converted (titleName, dateConverted) VALUES ("'+self.origTitle+'","'+self.now+'")'
+                        self.cursor = self.db.cursor()
+                        self.cursor.execute(self.sql)
+                    else:
+                        print self.origTitle + ' FAILED to convert !'
+            else:
+                print "There are no films that need converting."
+        except Exception, e:
+            self.showError(e)
+            
 
     def getFilms(self):
         print self.mp4Convert
 
     def listConverted(self):
-        sql = "SELECT * FROM tbl_converted ORDER BY dateConverted"
-        self.cursor = self.db.cursor()
-        self.cursor.execute(sql)
-        result = self.cursor.fetchall()
-        numrows = int(self.cursor.rowcount)
-        if numrows > 0:
-            print "*****************************************************"
-            print "* Date        *  Film Name                          *"
-            print "*****************************************************"  
-            for record in result:
-               output =  "* " + record[2].strftime("%d/%m/%Y") + "  *  "+ record[1]
-               output = output.ljust(52,' ')
-               output += "*"
-               print output
-        
-            print "*****************************************************"
-        else:
-            print "There are no converted films to list."
-
-
+        try:
+            sql = "SELECT * FROM tbl_converted ORDER BY dateConverted"
+            self.cursor = self.db.cursor()
+            self.cursor.execute(sql)
+            result = self.cursor.fetchall()
+            numrows = int(self.cursor.rowcount)
+            if numrows > 0:
+                print "*****************************************************"
+                print "* Date        *  Film Name                          *"
+                print "*****************************************************"  
+                for record in result:
+                   output =  "* " + record[2].strftime("%d/%m/%Y") + "  *  "+ record[1]
+                   output = output.ljust(52,' ')
+                   output += "*"
+                   print output
+            
+                print "*****************************************************"
+            else:
+                print "There are no converted films to list."
+        except MySQLdb.Error, e:
+            self.showError(e)
            
 convert = m4vToPS3()
 
