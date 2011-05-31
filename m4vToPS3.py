@@ -2,10 +2,6 @@
 import os, re, subprocess, shlex, MySQLdb
 from datetime import datetime
 db = MySQLdb.connect(host="localhost", user="root", passwd="hatter",db="m4vToPS3")
-#cursor = db.cursor()
-#cursor.execute('SELECT * FROM users')
-#result = cursor.fetchall()
-#print result;
 
 t = datetime.now()
 now =  t.strftime("%Y-%m-%d")
